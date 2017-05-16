@@ -1,5 +1,6 @@
 # JCF Drafting Plugin
 For JC Ink services
+Version 0.1 (BETA)
 
 ## Installation
 Add the file to your forum wrappers - I recommend using a webpage and the include key to keep your wrappers tidy. For the time being, in order to get full functionality for saving topics, you must disable the file attachment system in the boards you want to use the drafting on. You can do this via the permissions masks.
