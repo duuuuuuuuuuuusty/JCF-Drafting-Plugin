@@ -1,5 +1,6 @@
 # JCF Drafting Plugin
 For JC Ink services
+
 Version 0.1 (BETA)
 
 ## Installation
