@@ -155,8 +155,7 @@ $(function () {
 				});
 				for (var i = 0; i < topics.length; i++) {
 					topics[i] = topics[i].split(/\[§\]([\s\S]*?)\[\/§\]/gi);
-					topics[i] = [topics[i][1], topics[i][3], topics[i][5], topics[i][7]]
-					console.log(topics);
+					topics[i] = [topics[i][1], topics[i][3], topics[i][5], topics[i][7]];
 					$('.draft-list').append('<option value="' + i + '">' + topics[i][0] + '</option>');
 				}
 				_switcheroo(topics)
