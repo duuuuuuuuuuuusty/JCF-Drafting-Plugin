@@ -86,12 +86,13 @@ $(function () {
 		$('.pformstrip:contains("Your personal note pad")').text('Your saved drafts:');
 	} else if (url === 'Post') {
 	$('<tr id="drafting-options"><td class="pformleft"><b>Drafting Options</b></td><td class="pformright"><span class="save-header-border-left"></span><div class="save-header">Save as draft</div><span class="status-text"></span><input class="draft-save" type="input" placeholder="Enter draft name"> <input class="draft-save-btn" type="button" value="Save"><input class="overwrite-check" type="checkbox" checked> Overwrite?<br><br><div class="load-header">Load draft</div><select class="draft-list" name="draft-list" form="draft-list" autocomplete="off"><option value="-1">----</option></select><div class="load-box"><div class="load-preview" placeholder="Draft preview.."><div class="previnfo"><span class="prevtitle"></span><span class="prevdesc"></span></div><p></p></div><input class="send-to-post-btn" type="button" value="»Paste in post-area"></div></td></tr>').insertBefore('#post-options');
+	_startmeupbeforeyougogo()
 	}
 }); // Edit notepad title/create draft options on posting form
-	$(function() {
+	function _startmeupbeforeyougogo() {
 		var upath = window.location.href,
 			root = window.location.hostname;
-			console.log(root);
+			console.log('Draft script running @ ', root);
 		$.ajax({
 		type: 'GET',
 		data: {
@@ -103,7 +104,35 @@ $(function () {
 		var str = $(data).find('textarea.forminput').text();
 		_initload(str, upath);
 		});
+	
+	// BOOOOYYYY drop them event handlers
+	$(document).on('click', '.send-to-post-btn', function() {
+   		var upath = window.location.href;
+		$('#posting-form').get(0).scrollIntoView();
+		$('.textinput').val($('.load-preview').children('p').text());
+		if (upath.includes('act=Post&CODE=00')) {
+			$('#topic-title .pformright input').val($('.prevtitle').text());
+			$('#topic-desc .pformright input').val($('.prevdesc').text());
+		}
+   });
+    $(document).on('click', '.draft-save-btn', function() {
+		var upath = window.location.href,
+			root = window.location.hostname,
+		    query = '';
+		$.ajax({
+			async: false,
+			type: 'GET',
+			data: {
+				act: "UserCP",
+				CODE: "00",
+			},
+			url: '/index.php?'
+		}).done(function (data, textStatus) {
+			var query = $(data).find('textarea.forminput').text();
+			_updateUCP(query, upath);
+		});
 	});
+	};
 	function _initload(str, upath) {
 		//02 = posts, 00 = topics //
 		if (upath.includes('act=Post&CODE=02')) { // Regex posts into arrays
@@ -172,34 +201,6 @@ $(function () {
 			}
 	   })
 	}
-   
-   $(document).on('click', '.send-to-post-btn', function() {
-   		var upath = window.location.href;
-		$('#posting-form').get(0).scrollIntoView();
-		$('.textinput').val($('.load-preview').children('p').text());
-		if (upath.includes('act=Post&CODE=00')) {
-			$('#topic-title .pformright input').val($('.prevtitle').text());
-			$('#topic-desc .pformright input').val($('.prevdesc').text());
-		}
-   });
-   
-   $(document).on('click', '.draft-save-btn', function() {
-		var upath = window.location.href,
-			root = window.location.hostname,
-		    query = '';
-		$.ajax({
-			async: false,
-			type: 'GET',
-			data: {
-				act: "UserCP",
-				CODE: "00",
-			},
-			url: '/index.php?'
-		}).done(function (data, textStatus) {
-			var query = $(data).find('textarea.forminput').text();
-			_updateUCP(query, upath);
-		});
-	});
 	
 	function _updateUCP(query, upath) {
 		var body = $('#enter-your-post .pformright textarea').val(),
