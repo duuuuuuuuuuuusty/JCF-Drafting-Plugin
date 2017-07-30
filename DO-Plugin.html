@@ -204,7 +204,7 @@ $(function () {
 	function _updateUCP(query, upath) {
 		var body = $('#enter-your-post .pformright textarea').val(),
 		savename = $('.draft-save').val();
-		if (upath.includes('act=Post&CODE=02')) {
+		if ($('#posting-form .maintitle').text().includes('new post')) {
 			if ($('.overwrite-check').prop('checked')) {
 				console.log('Code 02 with overwrite checked')
 				var draft = '{post}\n[§]' + savename + '[/§]\n[§]' + body + '[/§]\n[§]' + savename + '[/§]\n{/post}', // Post to be saved
@@ -216,7 +216,7 @@ $(function () {
 				console.log('Code 02 w/o overwrite')
 				var draft = '{post}\n[§]' + savename + '[/§]\n[§]' + body + '[/§]\n[§]' + savename + '[/§]\n{/post}\n\n' + query;
 			}
-		} else if (upath.includes('act=Post&CODE=00')) {
+		} else if ($('#posting-form .maintitle').text().includes('new topic')) {
 			var topictitle = $('#topic-title .pformright input').val(),
 				topicdesc = $('#topic-desc .pformright input').val();
 			if ($('.overwrite-check').prop('checked')) {
