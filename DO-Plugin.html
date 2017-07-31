@@ -110,7 +110,7 @@ $(function () {
    		var upath = window.location.href;
 		$('#posting-form').get(0).scrollIntoView();
 		$('.textinput').val($('.load-preview').children('p').text());
-		if ($('#posting-form .maintitle').text().includes('new post')) {
+		if ($('#posting-form .maintitle').text().includes('new topic')) {
 			$('#topic-title .pformright input').val($('.prevtitle').text());
 			$('#topic-desc .pformright input').val($('.prevdesc').text());
 		}
@@ -127,7 +127,7 @@ $(function () {
 				CODE: "00",
 			},
 			url: '/index.php?'
-		}).done(function (data, textStatus) {
+		}).success(function (data, textStatus) {
 			var query = $(data).find('textarea.forminput').text();
 			_updateUCP(query, upath);
 		});
@@ -240,7 +240,7 @@ $(function () {
 				notes: draft
 			},
 			url: "/index.php?"
-		}).done(function (data, textStatus, jqXHR) {
+		}).success(function (data, textStatus, jqXHR) {
 			$('.status-text').text(savename + ': ' + textStatus);
 			$('.draft-list option:not([value="-1"])').remove();
 			$('.draft-list').trigger('change');
