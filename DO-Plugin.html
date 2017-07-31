@@ -92,7 +92,7 @@ $(function () {
 	function _startmeupbeforeyougogo() {
 		var upath = window.location.href,
 			root = window.location.hostname;
-			console.log('Draft script running @ ', root);
+			console.log(root);
 		$.ajax({
 		type: 'GET',
 		data: {
@@ -110,7 +110,7 @@ $(function () {
    		var upath = window.location.href;
 		$('#posting-form').get(0).scrollIntoView();
 		$('.textinput').val($('.load-preview').children('p').text());
-		if (upath.includes('act=Post&CODE=00')) {
+		if ($('#posting-form .maintitle').text().includes('new post')) {
 			$('#topic-title .pformright input').val($('.prevtitle').text());
 			$('#topic-desc .pformright input').val($('.prevdesc').text());
 		}
@@ -135,7 +135,7 @@ $(function () {
 	};
 	function _initload(str, upath) {
 		//02 = posts, 00 = topics //
-		if (upath.includes('act=Post&CODE=02')) { // Regex posts into arrays
+		if ($('#posting-form .maintitle').text().includes('new post')) { // Regex posts into arrays
 			var posts = [],
 				regexpost = /{post}([\s\S]*?){\/post}/gi;
 			str.replace(regexpost, function(match) {
@@ -147,7 +147,7 @@ $(function () {
 				$('.draft-list').append('<option value="' + i + '">' + posts[i][0] + '</option>')
 			}
 			_switcheroo(posts)		
-			} else if (upath.includes('act=Post&CODE=00')) { // Regex topics into arrays
+			} else if ($('#posting-form .maintitle').text().includes('new topic')) { // Regex topics into arrays
 				var topics = [],
 					regextopic = /{topic}([\s\S]*?){\/topic}/gi;
 				str.replace(regextopic, function(match) {
@@ -155,7 +155,8 @@ $(function () {
 				});
 				for (var i = 0; i < topics.length; i++) {
 					topics[i] = topics[i].split(/\[§\]([\s\S]*?)\[\/§\]/gi);
-					topics[i] = [topics[i][1], topics[i][3], topics[i][5], topics[i][7]];
+					topics[i] = [topics[i][1], topics[i][3], topics[i][5], topics[i][7]]
+					console.log(topics);
 					$('.draft-list').append('<option value="' + i + '">' + topics[i][0] + '</option>');
 				}
 				_switcheroo(topics)
@@ -165,7 +166,7 @@ $(function () {
 		$(document).on('change', '.draft-list', function() {
 			var a = $('.draft-list option:selected').attr('value'),
 				upath = window.location.href;
-			if (a > -1 && upath.includes('act=Post&CODE=02')) {	// Load saved posts, excluding topics
+			if (a > -1 && $('#posting-form .maintitle').text().includes('new post')) {	// Load saved posts, excluding topics
 				$('.load-preview').css({
 					'height': '180px',
 					'width': '400px',
@@ -175,7 +176,7 @@ $(function () {
 				$('.send-to-post-btn').css('display', 'unset');
 				$('.load-box').css('width', '500px');
 				$('.draft-save').val($('.draft-list option:selected').text());
-			} else if (a > -1 && upath.includes('act=Post&CODE=00')) { // Load saved topics, excluding posts
+			} else if (a > -1 && $('#posting-form .maintitle').text().includes('new topic')) { // Load saved topics, excluding posts
 				$('.load-preview').css({
 					'height': '180px',
 					'width': '400px',
