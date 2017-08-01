@@ -90,9 +90,7 @@ $(function () {
 	}
 }); // Edit notepad title/create draft options on posting form
 	function _startmeupbeforeyougogo() {
-		var upath = window.location.href,
-			root = window.location.hostname;
-			console.log(root);
+		console.log('Drafting script running at ', window.location.hostname);
 		$.ajax({
 		type: 'GET',
 		data: {
@@ -102,12 +100,11 @@ $(function () {
 		url: '/index.php?'
 	}).done(function (data, textStatus) {
 		var str = $(data).find('textarea.forminput').text();
-		_initload(str, upath);
+		_initload(str);
 		});
 	
 	// BOOOOYYYY drop them event handlers
 	$(document).on('click', '.send-to-post-btn', function() {
-   		var upath = window.location.href;
 		$('#posting-form').get(0).scrollIntoView();
 		$('.textinput').val($('.load-preview').children('p').text());
 		if ($('#posting-form .maintitle').text().includes('new topic')) {
@@ -116,9 +113,7 @@ $(function () {
 		}
    });
     $(document).on('click', '.draft-save-btn', function() {
-		var upath = window.location.href,
-			root = window.location.hostname,
-		    query = '';
+		var query = '';
 		$.ajax({
 			async: false,
 			type: 'GET',
@@ -129,13 +124,13 @@ $(function () {
 			url: '/index.php?'
 		}).success(function (data, textStatus) {
 			var query = $(data).find('textarea.forminput').text();
-			_updateUCP(query, upath);
+			_updateUCP(query);
 		});
 	});
 	};
-	function _initload(str, upath) {
+	function _initload(str) {
 		//02 = posts, 00 = topics //
-		if ($('#posting-form .maintitle').text().includes('new post')) { // Regex posts into arrays
+		if ($('#posting-form .maintitle').text().includes('Replying to')) { // Regex posts into arrays
 			var posts = [],
 				regexpost = /{post}([\s\S]*?){\/post}/gi;
 			str.replace(regexpost, function(match) {
@@ -164,9 +159,8 @@ $(function () {
 	};
 	function _switcheroo(optionarray){
 		$(document).on('change', '.draft-list', function() {
-			var a = $('.draft-list option:selected').attr('value'),
-				upath = window.location.href;
-			if (a > -1 && $('#posting-form .maintitle').text().includes('new post')) {	// Load saved posts, excluding topics
+			var a = $('.draft-list option:selected').attr('value');
+			if (a > -1 && $('#posting-form .maintitle').text().includes('Replying to')) {	// Load saved posts, excluding topics
 				$('.load-preview').css({
 					'height': '180px',
 					'width': '400px',
@@ -189,7 +183,6 @@ $(function () {
 					$('.load-box').css('width', '500px');
 					$('.draft-save').val($('.draft-list option:selected').text());
 			} else { // Hide preview box if page is not recognized
-			console.log(upath);
 			$('.load-preview').css({
 				'height': '10px',
 				'width': '0px',
@@ -202,10 +195,10 @@ $(function () {
 	   })
 	}
 	
-	function _updateUCP(query, upath) {
+	function _updateUCP(query) {
 		var body = $('#enter-your-post .pformright textarea').val(),
 		savename = $('.draft-save').val();
-		if ($('#posting-form .maintitle').text().includes('new post')) {
+		if ($('#posting-form .maintitle').text().includes('Replying to')) {
 			if ($('.overwrite-check').prop('checked')) {
 				console.log('Code 02 with overwrite checked')
 				var draft = '{post}\n[§]' + savename + '[/§]\n[§]' + body + '[/§]\n[§]' + savename + '[/§]\n{/post}', // Post to be saved
@@ -245,7 +238,7 @@ $(function () {
 			$('.draft-list option:not([value="-1"])').remove();
 			$('.draft-list').trigger('change');
 			var str = $(data).find('textarea.forminput').text();
-			_initload(str, upath);
+			_initload(str);
 		});
 	};
 </script>
