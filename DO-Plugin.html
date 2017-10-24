@@ -80,165 +80,153 @@
 </style>
 
 <script>
-$(function () {
-	var url = '<!-- |input_act| -->'
-	if (url === 'UserCP') {
-		$('.pformstrip:contains("Your personal note pad")').text('Your saved drafts:');
-	} else if (url === 'Post') {
-	$('<tr id="drafting-options"><td class="pformleft"><b>Drafting Options</b></td><td class="pformright"><span class="save-header-border-left"></span><div class="save-header">Save as draft</div><span class="status-text"></span><input class="draft-save" type="input" placeholder="Enter draft name"> <input class="draft-save-btn" type="button" value="Save"><input class="overwrite-check" type="checkbox" checked> Overwrite?<br><br><div class="load-header">Load draft</div><select class="draft-list" name="draft-list" form="draft-list" autocomplete="off"><option value="-1">----</option></select><div class="load-box"><div class="load-preview" placeholder="Draft preview.."><div class="previnfo"><span class="prevtitle"></span><span class="prevdesc"></span></div><p></p></div><input class="send-to-post-btn" type="button" value="»Paste in post-area"></div></td></tr>').insertBefore('#post-options');
-	_startmeupbeforeyougogo()
-	}
-}); // Edit notepad title/create draft options on posting form
-	function _startmeupbeforeyougogo() {
-		console.log('Drafting script running at ', window.location.hostname);
-		$.ajax({
-		type: 'GET',
-		data: {
-			act: "UserCP",
-			CODE: "00",
-		},
-		url: '/index.php?'
-	}).done(function (data, textStatus) {
-		var str = $(data).find('textarea.forminput').text();
-		_initload(str);
-		});
-	
-	// BOOOOYYYY drop them event handlers
-	$(document).on('click', '.send-to-post-btn', function() {
-		$('#posting-form').get(0).scrollIntoView();
-		$('.textinput').val($('.load-preview').children('p').text());
-		if ($('#posting-form .maintitle').text().includes('new topic')) {
-			$('#topic-title .pformright input').val($('.prevtitle').text());
-			$('#topic-desc .pformright input').val($('.prevdesc').text());
-		}
-   });
-    $(document).on('click', '.draft-save-btn', function() {
-		var query = '';
-		$.ajax({
-			async: false,
-			type: 'GET',
-			data: {
-				act: "UserCP",
-				CODE: "00",
-			},
-			url: '/index.php?'
-		}).success(function (data, textStatus) {
-			var query = $(data).find('textarea.forminput').text();
-			_updateUCP(query);
-		});
-	});
-	};
-	function _initload(str) {
-		//02 = posts, 00 = topics //
-		if ($('#posting-form .maintitle').text().includes('Replying to')) { // Regex posts into arrays
-			var posts = [],
-				regexpost = /{post}([\s\S]*?){\/post}/gi;
-			str.replace(regexpost, function(match) {
-				posts.push(match);
-				});
-			for (var i = 0; i < posts.length; i++) {
-				posts[i] = posts[i].split(/\[§\]([\s\S]*?)\[\/§\]/gi);
-				posts[i] = [posts[i][1], posts[i][3]];
-				$('.draft-list').append('<option value="' + i + '">' + posts[i][0] + '</option>')
-			}
-			_switcheroo(posts)		
-			} else if ($('#posting-form .maintitle').text().includes('new topic')) { // Regex topics into arrays
-				var topics = [],
-					regextopic = /{topic}([\s\S]*?){\/topic}/gi;
-				str.replace(regextopic, function(match) {
-					topics.push(match);
-				});
-				for (var i = 0; i < topics.length; i++) {
-					topics[i] = topics[i].split(/\[§\]([\s\S]*?)\[\/§\]/gi);
-					topics[i] = [topics[i][1], topics[i][3], topics[i][5], topics[i][7]]
-					console.log(topics);
-					$('.draft-list').append('<option value="' + i + '">' + topics[i][0] + '</option>');
-				}
-				_switcheroo(topics)
-			}
-	};
-	function _switcheroo(optionarray){
-		$(document).on('change', '.draft-list', function() {
-			var a = $('.draft-list option:selected').attr('value');
-			if (a > -1 && $('#posting-form .maintitle').text().includes('Replying to')) {	// Load saved posts, excluding topics
-				$('.load-preview').css({
-					'height': '180px',
-					'width': '400px',
-					'visibility': 'visible',
-					'opacity': '1'
-					}).children('p').text(optionarray[a][1]);
-				$('.send-to-post-btn').css('display', 'unset');
-				$('.load-box').css('width', '500px');
-				$('.draft-save').val($('.draft-list option:selected').text());
-			} else if (a > -1 && $('#posting-form .maintitle').text().includes('new topic')) { // Load saved topics, excluding posts
-				$('.load-preview').css({
-					'height': '180px',
-					'width': '400px',
-					'visibility': 'visible',
-					'opacity': '1'
-					}).children('p').text(optionarray[a][3]); //Set body
-					$('.prevtitle').text(optionarray[a][1]); //Set title
-					$('.prevdesc').text(optionarray[a][2]); //Set description
-					$('.send-to-post-btn').css('display', 'unset');
-					$('.load-box').css('width', '500px');
-					$('.draft-save').val($('.draft-list option:selected').text());
-			} else { // Hide preview box if page is not recognized
-			$('.load-preview').css({
-				'height': '10px',
-				'width': '0px',
-				'visibility': 'hidden',
-				'opacity': '0'
-			});
-			$('.send-to-post-btn').css('display', 'none');
-			$('.load-box').css('width', '0px');
-			}
-	   })
-	}
-	
-	function _updateUCP(query) {
-		var body = $('#enter-your-post .pformright textarea').val(),
-		savename = $('.draft-save').val();
-		if ($('#posting-form .maintitle').text().includes('Replying to')) {
-			if ($('.overwrite-check').prop('checked')) {
-				console.log('Code 02 with overwrite checked')
-				var draft = '{post}\n[§]' + savename + '[/§]\n[§]' + body + '[/§]\n[§]' + savename + '[/§]\n{/post}', // Post to be saved
-					r2 = '\\n?{post}\\n\\[§]' + savename + '\\[\\/§]([\\s\\S]*?)\\[§]' + savename + '\\[\\/§]\\n{\\/post}\\n?', // Holy escape characters Batman!
-					r1 = new RegExp(r2, 'i'), // Regex object
-					query = query.replace(r1, '').trim(), // Replace old post with null
-					draft = draft + '\n\n' + query; // Fallback in case overwrite was checked accidentally, to ensure it's still saved even without a pre-existing entry
-			} else {
-				console.log('Code 02 w/o overwrite')
-				var draft = '{post}\n[§]' + savename + '[/§]\n[§]' + body + '[/§]\n[§]' + savename + '[/§]\n{/post}\n\n' + query;
-			}
-		} else if ($('#posting-form .maintitle').text().includes('new topic')) {
-			var topictitle = $('#topic-title .pformright input').val(),
-				topicdesc = $('#topic-desc .pformright input').val();
-			if ($('.overwrite-check').prop('checked')) {
-				console.log('Code 00 with overwrite checked');
-				var draft = '{topic}\n[§]' + savename + '[/§]\n[§]' + topictitle + '[/§]\n[§]' + topicdesc + '[/§]\n[§]' + body + '[/§]\n[§]' + savename + '[/§]\n{/topic}',
-					r2 = '\\n?{topic}\\n\\[§]' + savename + '\\[\\/§]([\\s\\S]*?)\\[§]' + savename + '\\[\\/§]\\n{\\/topic}\\n?',
-					r1 = new RegExp(r2, 'i'),
-					query = query.replace(r1, '').trim(),
-					draft = draft + '\n\n' + query; // Newlines are added to maintain formatting
-			} else {
-				console.log('Code 00 w/o overwrite')
-				var draft = '{topic}\n[§]' + savename + '[/§]\n[§]' + topictitle + '[/§]\n[§]' + topicdesc + '[/§]\n[§]' + body + '[/§]\n[§]' + savename + '[/§]\n{/topic}\n\n' + query;
-			}
-		}
-		$.ajax({
-			type: 'POST',
-			data: {
-				act: "UserCP",
-				CODE: "20",
-				notes: draft
-			},
-			url: "/index.php?"
-		}).success(function (data, textStatus, jqXHR) {
-			$('.status-text').text(savename + ': ' + textStatus);
-			$('.draft-list option:not([value="-1"])').remove();
-			$('.draft-list').trigger('change');
-			var str = $(data).find('textarea.forminput').text();
-			_initload(str);
-		});
-	};
+  var drafty = $('#topic-title').length;
+  $(function() {
+    // Edit notepad title/create draft options on posting form
+    var url = '<!-- |input_act| -->'
+    if (url === 'UserCP') {
+      $('.pformstrip:contains("Your personal note pad")').text('Your saved drafts:');
+    } else if (url === 'Post') {
+      $('<tr id="drafting-options"><td class="pformleft"><b>Drafting Options</b></td><td class="pformright"><span class="save-header-border-left"></span><div class="save-header">Save as draft</div><span class="status-text"></span><input class="draft-save" type="input" placeholder="Enter draft name"> <input class="draft-save-btn" type="button" value="Save"><input class="overwrite-check" type="checkbox" checked> Overwrite?<br><br><div class="load-header">Load draft</div><select class="draft-list" name="draft-list" form="draft-list" autocomplete="off"><option value="-1">----</option></select><div class="load-box"><div class="load-preview" placeholder="Draft preview.."><div class="previnfo"><span class="prevtitle"></span><span class="prevdesc"></span></div><p></p></div><input class="send-to-post-btn" type="button" value="»Paste in post-area"></div></td></tr>').insertBefore('#post-options');
+      console.log('Drafting script running at ', window.location.hostname, '\nType is ', drafty);
+      $.ajax({
+        type: 'GET',
+        data: {
+          act: "UserCP",
+          CODE: "00",
+        },
+        url: '/index.php?'
+      }).done(function(data, textStatus) {
+        var str = $(data).find('textarea.forminput').text();
+        _initload(str);
+      });
+      $(document).on('click', '.send-to-post-btn', function() {
+        $('#posting-form').get(0).scrollIntoView();
+        $('.textinput').val($('.load-preview').children('p').text());
+        if ($('#posting-form .maintitle').text().includes('new topic')) {
+          $('#topic-title .pformright input').val($('.prevtitle').text());
+          $('#topic-desc .pformright input').val($('.prevdesc').text());
+        }
+      });
+      $(document).on('click', '.draft-save-btn', function() {
+        $.ajax({
+          async: false,
+          type: 'GET',
+          data: {
+            act: "UserCP",
+            CODE: "00",
+          },
+          url: '/index.php?'
+        }).success(function(data, textStatus) {
+          var query = $(data).find('textarea.forminput').text(),
+            body = $('#enter-your-post .pformright textarea').val(),
+            savename = $('.draft-save').val();
+          if (drafty == 1) {
+            if ($('.overwrite-check').prop('checked')) {
+              var draft = '{post}\n[§]' + savename + '[/§]\n[§]' + body + '[/§]\n[§]' + savename + '[/§]\n{/post}',
+                r2 = '\\n?{post}\\n\\[§]' + savename + '\\[\\/§]([\\s\\S]*?)\\[§]' + savename + '\\[\\/§]\\n{\\/post}\\n?', // Holy escape characters Batman!
+                r1 = new RegExp(r2, 'i'),
+                query = query.replace(r1, '').trim(),
+                draft = draft + '\n\n' + query;
+            } else {
+              var draft = '{post}\n[§]' + savename + '[/§]\n[§]' + body + '[/§]\n[§]' + savename + '[/§]\n{/post}\n\n' + query;
+            }
+          } else if (drafty == 0) {
+            var topictitle = $('#topic-title .pformright input').val(),
+              topicdesc = $('#topic-desc .pformright input').val();
+            if ($('.overwrite-check').prop('checked')) {
+              var draft = '{topic}\n[§]' + savename + '[/§]\n[§]' + topictitle + '[/§]\n[§]' + topicdesc + '[/§]\n[§]' + body + '[/§]\n[§]' + savename + '[/§]\n{/topic}',
+                r2 = '\\n?{topic}\\n\\[§]' + savename + '\\[\\/§]([\\s\\S]*?)\\[§]' + savename + '\\[\\/§]\\n{\\/topic}\\n?',
+                r1 = new RegExp(r2, 'i'),
+                query = query.replace(r1, '').trim(),
+                draft = draft + '\n\n' + query;
+            } else {
+              var draft = '{topic}\n[§]' + savename + '[/§]\n[§]' + topictitle + '[/§]\n[§]' + topicdesc + '[/§]\n[§]' + body + '[/§]\n[§]' + savename + '[/§]\n{/topic}\n\n' + query;
+            }
+          }
+          $.ajax({
+            type: 'POST',
+            data: {
+              act: "UserCP",
+              CODE: "20",
+              notes: draft
+            },
+            url: "/index.php?"
+          }).success(function(data, textStatus, jqXHR) {
+            $('.status-text').text(savename + ': ' + textStatus);
+            $('.draft-list option:not([value="-1"])').remove();
+            $('.draft-list').trigger('change');
+            var str = $(data).find('textarea.forminput').text();
+            _initload(str);
+          });
+        });
+      });
+    }
+  });
+
+  function _initload(str) {
+    if (drafty == 1) {
+      var topics = [],
+        regextopic = /{topic}([\s\S]*?){\/topic}/gi;
+      str.replace(regextopic, function(match) {
+        topics.push(match);
+      });
+      for (var i = 0; i < topics.length; i++) {
+        topics[i] = topics[i].split(/\[§\]([\s\S]*?)\[\/§\]/gi);
+        topics[i] = [topics[i][1], topics[i][3], topics[i][5], topics[i][7]]
+        $('.draft-list').append('<option value="' + i + '">' + topics[i][0] + '</option>');
+      }
+      _switcheroo(topics)
+    } else {
+      var posts = [],
+        regexpost = /{post}([\s\S]*?){\/post}/gi;
+      str.replace(regexpost, function(match) {
+        posts.push(match);
+      });
+      for (var i = 0; i < posts.length; i++) {
+        posts[i] = posts[i].split(/\[§\]([\s\S]*?)\[\/§\]/gi);
+        posts[i] = [posts[i][1], posts[i][3]];
+        $('.draft-list').append('<option value="' + i + '">' + posts[i][0] + '</option>')
+      }
+      _switcheroo(posts)
+    }
+  };
+
+  function _switcheroo(optionarray) {
+    $(document).on('change', '.draft-list', function() {
+      var a = $('.draft-list option:selected').attr('value');
+      if (a > -1 && drafty == 0) { // Load saved posts, excluding topics
+        $('.load-preview').css({
+          'height': '180px',
+          'width': '400px',
+          'visibility': 'visible',
+          'opacity': '1'
+        }).children('p').text(optionarray[a][1]);
+        $('.send-to-post-btn').css('display', 'unset');
+        $('.load-box').css('width', '500px');
+        $('.draft-save').val($('.draft-list option:selected').text());
+      } else if (a > -1 && drafty == 1) { // Load saved topics, excluding posts
+        $('.load-preview').css({
+          'height': '180px',
+          'width': '400px',
+          'visibility': 'visible',
+          'opacity': '1'
+        }).children('p').text(optionarray[a][3]); //Set body
+        $('.prevtitle').text(optionarray[a][1]); //Set title
+        $('.prevdesc').text(optionarray[a][2]); //Set description
+        $('.send-to-post-btn').css('display', 'unset');
+        $('.load-box').css('width', '500px');
+        $('.draft-save').val($('.draft-list option:selected').text());
+      } else { // Hide preview box if page is not recognized
+        $('.load-preview').css({
+          'height': '10px',
+          'width': '0px',
+          'visibility': 'hidden',
+          'opacity': '0'
+        });
+        $('.send-to-post-btn').css('display', 'none');
+        $('.load-box').css('width', '0px');
+      }
+    })
+  }
 </script>
