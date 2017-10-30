@@ -121,7 +121,7 @@
           var query = $(data).find('textarea.forminput').text(),
             body = $('#enter-your-post .pformright textarea').val(),
             savename = $('.draft-save').val();
-          if (drafty == 1) {
+          if (drafty == 0) {
             if ($('.overwrite-check').prop('checked')) {
               var draft = '{post}\n[§]' + savename + '[/§]\n[§]' + body + '[/§]\n[§]' + savename + '[/§]\n{/post}',
                 r2 = '\\n?{post}\\n\\[§]' + savename + '\\[\\/§]([\\s\\S]*?)\\[§]' + savename + '\\[\\/§]\\n{\\/post}\\n?', // Holy escape characters Batman!
@@ -131,7 +131,7 @@
             } else {
               var draft = '{post}\n[§]' + savename + '[/§]\n[§]' + body + '[/§]\n[§]' + savename + '[/§]\n{/post}\n\n' + query;
             }
-          } else if (drafty == 0) {
+          } else if (drafty == 1) {
             var topictitle = $('#topic-title .pformright input').val(),
               topicdesc = $('#topic-desc .pformright input').val();
             if ($('.overwrite-check').prop('checked')) {
