@@ -253,7 +253,7 @@
             hesitate = setTimeout(function() {
                 if (!$('.draft-save').val() && !$('.draft-save').is(':focus')) {
                     $('.draft-save').val(asName)
-					_draftSave()
+		    _draftSave()
                 } else if ($('.draft-save').is(':focus')) {
                     clearTimeout(hesitate)
                     $('.status-text').text('Autosave suspended: Save name field has focus')
