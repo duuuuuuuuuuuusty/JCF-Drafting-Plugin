@@ -3,12 +3,10 @@
         position: relative;
         top: 3px;
     }
-
     .status-text {
         position: absolute;
         margin-top: 2em;
     }
-
     .previnfo {
         display: grid;
         left: 20%;
@@ -18,11 +16,9 @@
         height: 20%;
         margin-bottom: -8%;
     }
-
     .load-preview p {
         margin-top: -8%;
     }
-
     .load-preview::before {
         content: "Preview";
         font-style: italic;
@@ -31,7 +27,6 @@
         font-size: 16px;
         opacity: .3;
     }
-
     .save-header::before,
     .load-header::before {
         background-color: black;
@@ -44,7 +39,6 @@
         position: relative;
         width: 3%;
     }
-
     .save-header::after,
     .load-header::after {
         background-color: black;
@@ -57,16 +51,13 @@
         position: relative;
         width: 3%;
     }
-
     .save-header,
     .load-header {
         font-weight: 700;
     }
-
     .load-box {
         width: 0px;
     }
-
     .load-preview {
         background: #fff;
         border: 1px solid gray;
@@ -78,7 +69,6 @@
         transition: all .2s ease-in 0s;
         opacity: 0;
     }
-
     .send-to-post-btn {
         align-self: right;
         background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
@@ -128,8 +118,6 @@
             });
         }
     });
-
-
     function _draftSave() {
         console.log('saving!')
         $.ajax({
@@ -186,8 +174,6 @@
             });
         });
     }
-
-
     function _initload(str) {
         var d = new Date(),
             asName = d.getDate() + "/" +
@@ -225,7 +211,6 @@
             _autosaveCycle(target, asName)
         }
     };
-
     function _switcheroo(optionarray) {
         $(document).on('change', '.draft-list', function() {
             var a = $('.draft-list option:selected').attr('value');
@@ -261,14 +246,14 @@
             }
         })
     }
-
     function _autosaveCycle(target, asName) {
         var hesitate = null;
         target.keyup(function() {
             clearTimeout(hesitate)
             hesitate = setTimeout(function() {
-                if (!$('.draft-save').val()) {
+                if (!$('.draft-save').val() && !$('.draft-save').is(':focus')) {
                     $('.draft-save').val(asName)
+					_draftSave()
                 } else if ($('.draft-save').is(':focus')) {
                     clearTimeout(hesitate)
                     $('.status-text').text('Autosave suspended: Save name field has focus')
