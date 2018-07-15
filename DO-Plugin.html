@@ -57,6 +57,9 @@
     }
     .load-box {
         width: 0px;
+		height: 0px;
+		overflow: hidden;
+		padding-top: 4%;
     }
     .load-preview {
         background: #fff;
@@ -80,6 +83,22 @@
         display: none;
         cursor: pointer;
     }
+	#doVis, .doWrap {
+		display:none;
+	}
+	#doVis:checked + .doWrap {
+		display:block;
+	}
+	#dosVis, #doVis:checked ~ .doVisOn, #doVis:not(:checked) ~ .doVisOff {
+		display:none;
+	}
+	.doVisLabel {
+		padding: 1px 2px;
+		border: 1px solid lightgray;
+		background: gray;
+		color: #fff;
+		cursor: pointer;
+	}
 </style>
 
 <script>
@@ -90,7 +109,7 @@
         if (url === 'UserCP') {
             $('.pformstrip:contains("Your personal note pad")').text('Your saved drafts:');
         } else if (url === 'Post') {
-            $('<tr id="drafting-options"><td class="pformleft"><b>Drafting Options</b></td><td class="pformright"><span class="save-header-border-left"></span><div class="save-header">Save as draft</div><span class="status-text"></span><input class="draft-save" type="input" placeholder="Enter draft name"> <input class="draft-save-btn" type="button" value="Save"><input class="overwrite-check" type="checkbox" checked> Overwrite?<br><br><div class="load-header">Load draft</div><select class="draft-list" name="draft-list" form="draft-list" autocomplete="off"><option value="-1">----</option></select><div class="load-box"><div class="load-preview" placeholder="Draft preview.."><div class="previnfo"><span class="prevtitle"></span><span class="prevdesc"></span></div><p></p></div><input class="send-to-post-btn" type="button" value="»Paste in post-area"></div></td></tr>').insertBefore('#post-options');
+            $('<tr id="drafting-options"><td class="pformleft"><b>Drafting Options</b></td><td class="pformright"><input type="checkbox" id="doVis"><div class="doWrap"><div class="save-header">Save as draft</div><span class="status-text"></span><input class="draft-save" type="input" placeholder="Enter draft name"> <input class="draft-save-btn" type="button" value="Save"><input class="overwrite-check" type="checkbox" checked> Overwrite?<br><br><div class="load-header">Load draft</div><select class="draft-list" name="draft-list" form="draft-list" autocomplete="off"><option value="-1">----</option></select><div class="load-box"><div class="load-preview" placeholder="Draft preview.."><div class="previnfo"><span class="prevtitle"></span><span class="prevdesc"></span></div><p></p></div><input class="send-to-post-btn" type="button" value="»Paste in post-area"></div></div><label for="doVis" class="doVisLabel doVisOn">Show</label><label for="doVis" class="doVisLabel doVisOff">Hide</label></td></tr>').insertBefore('#post-options');
             $('#upload-files-header, #upload-files').remove()
             console.log('Drafting script running at ', window.location.hostname, '\nType is ', drafty);
             $.ajax({
@@ -223,7 +242,10 @@
                     'opacity': '1'
                 }).children('p').text(optionarray[a][1]);
                 $('.send-to-post-btn').css('display', 'unset');
-                $('.load-box').css('width', '500px');
+                $('.load-box').css({
+				'width': '500px',
+				'height': 'unset'
+				});
             } else if (a > -1 && drafty == 1) { // Load saved topics, excluding posts
                 $('.load-preview').css({
                     'height': '180px',
@@ -234,16 +256,17 @@
                 $('.prevtitle').text(optionarray[a][1]); //Set title
                 $('.prevdesc').text(optionarray[a][2]); //Set description
                 $('.send-to-post-btn').css('display', 'unset');
-                $('.load-box').css('width', '500px');
+                $('.load-box').css({
+				'width': '500px',
+				'height': 'unset'
+				});
             } else { // Hide preview box if page is not recognized
-                $('.load-preview').css({
-                    'height': '10px',
-                    'width': '0px',
-                    'visibility': 'hidden',
-                    'opacity': '0'
-                });
                 $('.send-to-post-btn').css('display', 'none');
-                $('.load-box').css('width', '0px');
+                $('.load-box').css({
+				'width': '0px',
+				'height': '0px',
+				'visibility': 'hidden'
+				});
             }
         })
     }
