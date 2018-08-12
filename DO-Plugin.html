@@ -102,7 +102,8 @@
 </style>
 
 <script>
-    var drafty = $('#topic-title').length;
+    var drafty = $('#topic-title').length,
+		enableAutosave = true;
     $(function() {
         // Edit notepad title/create draft options on posting form
         var url = '<!-- |input_act| -->'
@@ -214,7 +215,9 @@
                 $('.draft-list').append('<option value="' + i + '">' + topics[i][0] + '</option>');
             }
             _switcheroo(topics)
-            _autosaveCycle(target, asName)
+            if (enableAutosave) {
+			  _autosaveCycle(target, asName)
+			}
         } else {
             var posts = [],
                 target = $('#enter-your-post .textinput'),
@@ -228,7 +231,9 @@
                 $('.draft-list').append('<option value="' + i + '">' + posts[i][0] + '</option>')
             }
             _switcheroo(posts)
-            _autosaveCycle(target, asName)
+            if (enableAutosave) {
+			  _autosaveCycle(target, asName)
+			}
         }
     };
     function _switcheroo(optionarray) {
@@ -271,18 +276,21 @@
         })
     }
     function _autosaveCycle(target, asName) {
-        var hesitate = null;
+        var hesitate = null,
+			prevSave = null;
         target.keyup(function() {
             clearTimeout(hesitate)
             hesitate = setTimeout(function() {
                 if (!$('.draft-save').val() && !$('.draft-save').is(':focus')) {
                     $('.draft-save').val(asName)
-		    _draftSave()
+					_draftSave()
+					prevSave = true;
                 } else if ($('.draft-save').is(':focus')) {
                     clearTimeout(hesitate)
                     $('.status-text').text('Autosave suspended: Save name field has focus')
-                } else {
+                } else if (!(prevSave)) {
                     _draftSave()
+					prevSave = true;
                 }
             }, 10000)
         })
